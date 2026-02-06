@@ -1,1 +1,44 @@
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# PHÂN QUYỀN ADMIN / USER
+import pandas as pd
+
+# Đọc file Excel
+users = pd.read_excel("users.xlsx")
+
+def login(username, password):
+    # Tìm user
+    user = users[
+        (users['username'] == username) &
+        (users['password'] == password)
+    ]
+    
+    if user.empty:
+        return "Sai tài khoản hoặc mật khẩu"
+    
+    role = user.iloc[0]['role']
+    
+    if role == 'admin':
+        return "Đăng nhập ADMIN – vào trang quản lý"
+    elif role == 'user':
+        return "Đăng nhập USER – vào trang đặt món"
+    else:
+        return "Vai trò không hợp lệ"
+
