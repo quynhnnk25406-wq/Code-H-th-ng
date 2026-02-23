@@ -1,1 +1,3 @@
-
+# Tính tổng tiền
+def tinh_tong_tien(gio_hang):
+    return sum(mon["so_luong"] * mon["don_gia"] for mon in gio_hang)
