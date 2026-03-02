@@ -1,1 +1,37 @@
+class GioHang:
+    def __init__(self):
+        self.items = {}
 
+    def them_mon(self, mon_an, so_luong_mua):
+        if not mon_an.tinh_trang:
+            print("Món ăn đã hết hàng.")
+            return False
+
+        if so_luong_mua <= 0 or so_luong_mua > mon_an.so_luong:
+            print("Số lượng không hợp lệ.")
+            return False
+
+        if mon_an.mon_id in self.items:
+            self.items[mon_an.mon_id]["so_luong"] += so_luong_mua
+        else:
+            self.items[mon_an.mon_id] = {
+                "mon": mon_an,
+                "so_luong": so_luong_mua
+            }
+
+        mon_an.so_luong -= so_luong_mua
+        if mon_an.so_luong == 0:
+            mon_an.tinh_trang = False
+
+        print(f"Đã thêm {so_luong_mua} {mon_an.ten_mon} vào giỏ hàng.")
+        return True
+
+    def xem_gio_hang(self):
+        tong = 0
+        for item in self.items.values():
+            mon = item["mon"]
+            sl = item["so_luong"]
+            thanh_tien = mon.gia * sl
+            tong += thanh_tien
+            print(f"{mon.ten_mon} - {sl} x {mon.gia} = {thanh_tien}")
+        print(f"Tổng tiền: {tong}")
