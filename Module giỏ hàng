@@ -1,1 +1,65 @@
+import os
+import json
+from datetime import datetime
+# from func_menu import read_menu  # hàm đọc menu từ CSV (đã có trong module món ăn)
+
+# ================== CẤU HÌNH FILE CHO ĐƠN HÀNG ==================
+DATA_DIR = "data/"
+DON_HANG_FILE = os.path.join(DATA_DIR, "don_hang.json")
+CHI_TIET_DON_FILE = os.path.join(DATA_DIR, "chi_tiet_don.json")
+
+# Giỏ hàng tạm thời (lưu trong bộ nhớ, key là mã khách)
+gio_hang = {}  # {ma_khach: [ {ma_mon, ten_mon, so_luong, don_gia}, ... ]}
+
+#+++++++++++++++++HÀM ĐỌC/GHI FILE (tạm thời tự viết, sau tổng hợp chắc là dùng chung)++++++++++++++++++++++
+def doc_file_json(ten_file):
+    """Đọc file JSON, trả về list/dict, nếu không có file thì trả về []"""
+    if not os.path.exists(ten_file):
+        return []
+    with open(ten_file, 'r', encoding='utf-8') as f:
+        return json.load(f)
+
+def ghi_file_json(ten_file, data):
+    """Ghi dữ liệu vào file JSON"""
+    with open(ten_file, 'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False, indent=4)
+
+def them_vao_gio(ma_khach, ma_mon, so_luong):
+    """
+    Thêm món vào giỏ hàng của khách.
+    - Kiểm tra số lượng > 0
+    - Đọc menu từ CSV qua read_menu()
+    - Kiểm tra món tồn tại (theo id)
+    - Nếu có, thêm vào giỏ (cập nhật số lượng nếu đã có)
+    Trả về thông báo kết quả.
+    """
+    if so_luong <= 0:
+        return "Lỗi: Số lượng phải lớn hơn 0."
+
+    # Đọc menu (hàm này trả về list các dict từ file menu.csv)
+    menu = read_menu()
+    # Tìm món theo id (id là chuỗi, ví dụ "F01")
+    mon = next((m for m in menu if m["id"] == ma_mon), None)
+    if not mon:
+        return f"Lỗi: Món mã {ma_mon} không tồn tại."
+
+    # Khởi tạo giỏ cho khách nếu chưa có
+    if ma_khach not in gio_hang:
+        gio_hang[ma_khach] = []
+
+    # Kiểm tra xem món đã có trong giỏ chưa
+    for item in gio_hang[ma_khach]:
+        if item["ma_mon"] == ma_mon:
+            item["so_luong"] += so_luong
+            return f"Đã cập nhật số lượng {mon['name']} trong giỏ: {item['so_luong']}."
+
+    # Chưa có, thêm mới
+    gio_hang[ma_khach].append({
+        "ma_mon": ma_mon,
+        "ten_mon": mon["name"],
+        "so_luong": so_luong,
+        "don_gia": float(mon["price"])  # chuyển giá sang số thực
+    })
+    return f"Đã thêm {mon['name']} (x{so_luong}) vào giỏ."
+
 
