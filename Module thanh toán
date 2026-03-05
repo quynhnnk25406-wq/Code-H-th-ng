@@ -1,3 +1,81 @@
 # Tính tổng tiền
 def tinh_tong_tien(gio_hang):
     return sum(mon["so_luong"] * mon["don_gia"] for mon in gio_hang)
+
+
+
+
+import json
+from datetime import datetime
+from them_mon_func import *
+# ================== CÔNG VIỆC 2: XÁC NHẬN THANH TOÁN ==================
+def xac_nhan_thanh_toan(ma_khach, phuong_thuc, ghi_chu=""):
+    """
+    Xác nhận thanh toán, tạo đơn hàng và chi tiết.
+    - Kiểm tra giỏ hàng không rỗng.
+    - Tính tổng tiền.
+    - Tạo mã đơn tự động (dạng DH-xxxxx).
+    - Lưu vào don_hang.json và chi_tiet_don.json.
+    - Xóa giỏ hàng của khách.
+    Trả về (ma_don, thông báo).
+    """
+    if ma_khach not in gio_hang or not gio_hang[ma_khach]:
+        return None, "Lỗi: Giỏ hàng trống."
+
+    # Tính tổng tiền
+    tong = sum(item["so_luong"] * item["don_gia"] for item in gio_hang[ma_khach])
+
+    # Đọc danh sách đơn hàng hiện có để tạo mã mới
+    ds_don = doc_file_json(DON_HANG_FILE)
+    max_so = 0
+    for don in ds_don:
+        try:
+            so = int(don["ma_don"].split('-')[-1])
+            if so > max_so:
+                max_so = so
+        except (KeyError, ValueError, IndexError):
+            continue
+    ma_don = f"DH-{max_so + 1:05d}"
+
+    # Xác định trạng thái dựa trên phương thức
+    if phuong_thuc.lower() == "chuyen_khoan":
+        trang_thai = "Đã thanh toán"
+        phuong_thuc_tt = "Chuyển khoản"
+    elif phuong_thuc.lower() == "tien_mat":
+        trang_thai = "Chờ xác nhận"
+        phuong_thuc_tt = "Tiền mặt"
+    else:
+        return None, "Lỗi: Phương thức thanh toán không hợp lệ."
+
+    # Tạo đơn hàng mới
+    don_moi = {
+        "ma_don": ma_don,
+        "ma_khach": ma_khach,
+        "ma_nhan_vien": None,          # sẽ cập nhật sau nếu nhân viên xác nhận
+        "ngay_dat": datetime.now().isoformat(),
+        "tong_tien": tong,
+        "trang_thai": trang_thai,
+        "phuong_thuc_tt": phuong_thuc_tt,
+        "ghi_chu": ghi_chu
+    }
+    ds_don.append(don_moi)
+    ghi_file_json(DON_HANG_FILE, ds_don)
+
+    # Lưu chi tiết đơn hàng
+    ds_ct = doc_file_json(CHI_TIET_DON_FILE)
+    for item in gio_hang[ma_khach]:
+        thanh_tien = item["so_luong"] * item["don_gia"]
+        chi_tiet = {
+            "ma_don": ma_don,
+            "ma_mon": item["ma_mon"],
+            "so_luong": item["so_luong"],
+            "don_gia": item["don_gia"],
+            "thanh_tien": thanh_tien
+        }
+        ds_ct.append(chi_tiet)
+    ghi_file_json(CHI_TIET_DON_FILE, ds_ct)
+
+    # Xóa giỏ hàng của khách
+    del gio_hang[ma_khach]
+
+    return ma_don, f"Thanh toán thành công! Mã đơn: {ma_don}"
