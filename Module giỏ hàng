@@ -1,1 +1,37 @@
+class GioHang:
+    def __init__(self):
+        self.items = {}
 
+    def them_mon(self, mon_an, so_luong_mua):
+        # 1. Kiểm tra món còn bán không
+        if not mon_an.tinh_trang:
+            print("Món ăn đã hết hàng.")
+            return False
+
+        # 2. Kiểm tra số lượng tồn kho
+        if so_luong_mua <= 0:
+            print("Số lượng mua không hợp lệ.")
+            return False
+
+        if so_luong_mua > mon_an.so_luong:
+            print("Không đủ số lượng món trong kho.")
+            return False
+
+        # 3. Thêm hoặc cập nhật món trong giỏ
+        if mon_an.mon_id in self.items:
+            self.items[mon_an.mon_id]['so_luong'] += so_luong_mua
+        else:
+            self.items[mon_an.mon_id] = {
+                'mon': mon_an,
+                'so_luong': so_luong_mua
+            }
+
+        # 4. Cập nhật số lượng kho
+        mon_an.so_luong -= so_luong_mua
+
+        # 5. Nếu hết hàng -> cập nhật trạng thái
+        if mon_an.so_luong == 0:
+            mon_an.tinh_trang = False
+
+        print(f"Đã thêm {so_luong_mua} '{mon_an.ten_mon}' vào giỏ hàng.")
+        return True
