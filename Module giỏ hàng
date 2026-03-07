@@ -63,3 +63,33 @@ def them_vao_gio(ma_khach, ma_mon, so_luong):
     return f"Đã thêm {mon['name']} (x{so_luong}) vào giỏ."
 
 
+def cap_nhat_so_luong(ma_khach, ma_mon, so_luong_moi):
+
+    if ma_khach not in gio_hang:
+        return "Lỗi: Khách chưa có giỏ hàng."
+        break
+
+    for item in gio_hang[ma_khach]:
+
+        if item["ma_mon"] == ma_mon:
+
+            if so_luong_moi <= 0:
+                gio_hang[ma_khach].remove(item)
+                return f"Đã xóa {item['ten_mon']} vì số lượng = 0."
+
+            item["so_luong"] = so_luong_moi
+            return f"Đã cập nhật {item['ten_mon']} với số lượng là: {so_luong_moi}."
+
+    return "Lỗi: Không tìm thấy món trong giỏ."
+
+
+def xoa_mon_khoi_gio(ma_khach, ma_mon):
+    for item in gio_hang[ma_khach]:
+        if item["ma_mon"] == ma_mon:
+            gio_hang[ma_khach].remove(item)
+            return f"Đã xóa {item['ten_mon']} khỏi giỏ."
+        else:
+            return "Lỗi: Không tìm thấy món trong giỏ."
+
+
+
