@@ -77,9 +77,8 @@ def admin_reply(id_gop_y, noi_dung):
     print(" Không tìm thấy ID góp ý.")
 
 
-# ======================
 # HIỂN THỊ GÓP Ý
-# ======================
+
 def hien_thi():
 
     ds = doc_file_json(FEEDBACK_FILE)
