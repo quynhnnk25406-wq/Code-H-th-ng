@@ -56,7 +56,6 @@ def add_food(menu):
 
 # Sửa món ăn theo ID
 def update_food(menu, food_id):
-    found = False
     for item in menu:
         if item["id"] == food_id:
             print("Đã tìm thấy món:", item["name"])
@@ -64,8 +63,8 @@ def update_food(menu, food_id):
             item["price"] = input("Nhập giá mới: ")
             item["category"] = input("Nhập loại mới: ")
             break
-        else:
-            print("Không tìm thấy món!")
+    else:
+        print("Không tìm thấy món!")
 
     return menu
 
